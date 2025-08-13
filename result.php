@@ -1,29 +1,66 @@
 <?php
-if (
-    empty($_POST['name']) || empty($_POST['email']) || empty($_POST['class']) ||
-    empty($_POST['s1']) || empty($_POST['s2']) || empty($_POST['s3']) ||
-    empty($_POST['s4']) || empty($_POST['s5']) || empty($_POST['s6']) || empty($_POST['s7'])
-) {
-    echo "<div style='text-align:center; padding:20px; font-family:Arial;'>";
-    echo "<h3 style='color:red;'>Fill all required fields</h3>";
-    echo "<a href='index.php' style='text-decoration:none; color:#007bff;'>Go Back</a>";
-    echo "</div>";
-    exit();
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "connect";
+
+// Connect to MySQL
+$conn = mysqli_connect($servername, $username, $password, $dbname);
+if (!$conn) {
+    die("Connection failed: " . mysqli_connect_error());
 }
+echo "Connected<br>";
 
-$name = $_POST['name'];
-$email = $_POST['email'];
-$class = $_POST['class'];
-$obtained = $_POST['s1'] + $_POST['s2'] + $_POST['s3'] + $_POST['s4'] + $_POST['s5'] + $_POST['s6'] + $_POST['s7'];
-$totalMarks = 700;
-$percentage = ($obtained / $totalMarks) * 100;
+// Check if form is submitted
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-if ($percentage >= 90) $grade = "A+";
-elseif ($percentage >= 80) $grade = "A";
-elseif ($percentage >= 70) $grade = "B";
-elseif ($percentage >= 60) $grade = "C";
-elseif ($percentage >= 50) $grade = "D";
-else $grade = "Fail";
+    // Validate fields
+    if (
+        empty($_POST['name']) || empty($_POST['email']) || empty($_POST['class']) ||
+        empty($_POST['s1']) || empty($_POST['s2']) || empty($_POST['s3']) ||
+        empty($_POST['s4']) || empty($_POST['s5']) || empty($_POST['s6']) || empty($_POST['s7'])
+    ) {
+        echo "<div style='text-align:center; padding:20px; font-family:Arial;'>";
+        echo "<h3 style='color:red;'>Fill all required fields</h3>";
+        echo "<a href='index.php' style='text-decoration:none; color:#007bff;'>Go Back</a>";
+        echo "</div>";
+        exit();
+    }
+
+    // Assign variables
+    $name = $_POST['name'];
+    $email = $_POST['email'];
+    $class = $_POST['class'];
+    $s1 = $_POST['s1'];
+    $s2 = $_POST['s2'];
+    $s3 = $_POST['s3'];
+    $s4 = $_POST['s4'];
+    $s5 = $_POST['s5'];
+    $s6 = $_POST['s6'];
+    $s7 = $_POST['s7'];
+
+    // Calculations
+    $obtained = $s1 + $s2 + $s3 + $s4 + $s5 + $s6 + $s7;
+    $totalMarks = 700;
+    $percentage = ($obtained / $totalMarks) * 100;
+
+    if ($percentage >= 90) $grade = "A+";
+    elseif ($percentage >= 80) $grade = "A";
+    elseif ($percentage >= 70) $grade = "B";
+    elseif ($percentage >= 60) $grade = "C";
+    elseif ($percentage >= 50) $grade = "D";
+    else $grade = "Fail";
+
+    // Insert into database
+    $sql = "INSERT INTO connect (name, email, class, s1, s2, s3, s4, s5, s6, s7, obtained, percentage) 
+            VALUES ('$name', '$email', '$class', $s1, $s2, $s3, $s4, $s5, $s6, $s7, $obtained, $percentage)";
+
+    if (mysqli_query($conn, $sql)) {
+        echo "Data inserted successfully<br>";
+    } else {
+        echo "Error: " . mysqli_error($conn);
+    }
+}
 ?>
 
 <!DOCTYPE html>
